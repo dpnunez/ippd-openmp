@@ -288,3 +288,21 @@ SAXPY é limitado pela largura de banda da memória, não pelo processamento. Ma
 2. **SIMD é "gratuito"**: vetorização sem threads deve sempre ser considerada
 3. **Conhecer o gargalo**: SAXPY é memory-bound, não compute-bound
 4. **Overhead importa**: para tarefas rápidas, o custo de paralelismo domina
+
+---
+
+## Ambiente de Execução
+
+Os resultados apresentados foram obtidos no seguinte ambiente:
+
+| Componente | Especificação |
+|------------|---------------|
+| **Sistema Operacional** | macOS (Darwin 25.1.0) |
+| **Arquitetura** | ARM64 (Apple Silicon) |
+| **Processador** | Apple M3 Pro |
+| **Cores Físicos** | 11 |
+| **Cores Lógicos** | 11 |
+| **Memória RAM** | 18 GB |
+| **Compilador** | Apple Clang 16.0.0 |
+| **OpenMP** | libomp 21.1.7 (via Homebrew) |
+| **Flags de Compilação** | `-O3 -march=native -fopenmp` |
