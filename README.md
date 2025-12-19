@@ -7,10 +7,10 @@
 
 ## Alunos
 
-| Nome | Responsabilidades |
+| Nome | Matrículas |
 |------|-------------------|
-| **Daniel Núñez** | Implementação e análise |
-| **Bruno Silveira** | Implementação e análise |
+| **Daniel Núñez** | 20202019 |
+| **Bruno Silveira** | 20200909 |
 
 ---
 
