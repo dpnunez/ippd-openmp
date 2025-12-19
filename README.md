@@ -56,26 +56,28 @@ Comparação de overhead entre duas abordagens:
 ```
 openmp-trabalho/
 ├── README.md                    # Este arquivo
+├── RESULTADOS.md                # Análise detalhada dos resultados
+├── REPRODUCIBILIDADE.md         # Informações para reproduzir experimentos
 ├── run_all.sh                   # Script para executar tudo
 ├── docs/
 │   └── descricao.md             # Enunciado da atividade
 │
 ├── src/
 │   ├── saxpy/                   # Tarefa C - SAXPY com SIMD
-│   │   ├── sequencial/          # Código V1
+│   │   ├── seq/                 # Código V1
 │   │   ├── omp/                 # Código V2 e V3
 │   │   ├── Makefile
 │   │   ├── run.sh
 │   │   ├── plot.py
-│   │   └── README.md            # Documentação e análise
+│   │   └── README.md            # Documentação da tarefa
 │   │
 │   └── parallel_region/         # Tarefa D - Região Paralela
-│       ├── sequencial/          # Código baseline
+│       ├── seq/                 # Código baseline
 │       ├── omp/                 # Código ingênua e arrumada
 │       ├── Makefile
 │       ├── run.sh
 │       ├── plot.py
-│       └── README.md            # Documentação e análise
+│       └── README.md            # Documentação da tarefa
 │
 └── results/                     # Resultados gerados
     ├── saxpy/
@@ -138,20 +140,12 @@ make plot   # Gera gráficos
 
 ---
 
-## Ambiente de Execução
+## Documentação Adicional
 
-Os resultados foram obtidos no seguinte ambiente:
-
-| Componente | Especificação |
-|------------|---------------|
-| **Sistema Operacional** | macOS (Darwin 25.1.0) |
-| **Arquitetura** | ARM64 (Apple Silicon) |
-| **Processador** | Apple M3 Pro |
-| **Cores Físicos** | 11 |
-| **Cores Lógicos** | 11 |
-| **Memória RAM** | 18 GB |
-| **Compilador** | Apple Clang 16.0.0 |
-| **OpenMP** | libomp 21.1.7 |
+| Documento | Descrição |
+|-----------|-----------|
+| [`RESULTADOS.md`](RESULTADOS.md) | Análise detalhada dos resultados experimentais |
+| [`REPRODUCIBILIDADE.md`](REPRODUCIBILIDADE.md) | Versão do compilador, flags, CPU, afinidade, semente |
 
 ---
 
@@ -174,6 +168,8 @@ Os resultados foram obtidos no seguinte ambiente:
 | Ingênua | ~3.9x (16 threads) | 2 fork/join |
 
 **Conclusão**: Organizar código para minimizar fork/join resulta em ~20% de ganho.
+
+**Para análise completa:** Veja [`RESULTADOS.md`](RESULTADOS.md)
 
 ---
 

@@ -98,7 +98,7 @@ Este kernel é **compute-bound** (limitado por processamento), permitindo observ
 
 ```
 src/parallel_region/
-├── sequencial/
+├── seq/
 │   └── parallel_region.c    # Versão baseline
 ├── omp/
 │   └── parallel_region.c    # Versões ingênua e arrumada
@@ -133,106 +133,29 @@ make clean
 
 ---
 
-## Análise dos Resultados
+## Resultados
 
-### Gráfico 1: Comparação Ingênua vs Arrumada
+Os resultados detalhados desta tarefa estão disponíveis em:
 
-![Comparação](../../results/parallel_region/charts/grafico1_comparacao_versoes.png)
+- **Análise completa**: [`../../RESULTADOS.md`](../../RESULTADOS.md#tarefa-d--organização-de-região-paralela)
+- **Reprodutibilidade**: [`../../REPRODUCIBILIDADE.md`](../../REPRODUCIBILIDADE.md)
 
-**O que mostra:** Tempo de execução (ms) das versões ingênua e arrumada para cada número de threads.
+### Resumo
 
-**Linha azul pontilhada:** Tempo da versão sequencial (referência)
+| Versão | Melhor Speedup | Observação |
+|--------|----------------|------------|
+| Arrumada | ~4.7x (16 threads) | 1 fork/join |
+| Ingênua | ~3.9x (16 threads) | 2 fork/join |
 
-**Barras de erro:** ±1 desvio padrão (5 execuções)
+**Conclusão**: Organizar código para minimizar fork/join resulta em ~20% de ganho.
 
-**Observações:**
-- Ambas versões paralelas são **mais rápidas** que sequencial para múltiplas threads
-- A versão arrumada (verde) geralmente tem tempo menor ou igual à ingênua (vermelho)
-- O benefício do paralelismo aumenta com N maior
+### Gráficos Gerados
 
-### Gráfico 2: Overhead Relativo da Versão Ingênua
-
-![Overhead](../../results/parallel_region/charts/grafico2_overhead_relativo.png)
-
-**O que mostra:** Quanto a versão ingênua é mais lenta que a arrumada (em %).
-
-**Fórmula:** `Overhead = (Tempo_ingenua - Tempo_arrumada) / Tempo_arrumada × 100%`
-
-**Interpretação:**
-- **Overhead > 0%**: Ingênua mais lenta (overhead extra de fork/join)
-- **Overhead < 0%**: Ingênua mais rápida (variância experimental)
-
-**Observações:**
-- O overhead varia, mas a tendência é a ingênua ser ligeiramente mais lenta
-- O custo extra de criar threads duas vezes é mensurável
-
-### Gráfico 3: Speedup sobre Sequencial
-
-![Speedup](../../results/parallel_region/charts/grafico3_speedup_sequencial.png)
-
-**O que mostra:** Speedup de ambas versões em relação ao baseline sequencial.
-
-**Legenda:**
-- Linha **sólida**: Versão Arrumada
-- Linha **tracejada**: Versão Ingênua
-
-**Linha de referência:** Speedup = 1.0x (desempenho sequencial)
-
-**Observações:**
-- Speedup aumenta com número de threads até ~8 threads
-- Para N=1M com 16 threads: Arrumada ~4.7x vs Ingênua ~3.9x
-- A versão arrumada mantém vantagem consistente em threads altos
-
-### Gráfico 4: Tempo Absoluto da Versão Arrumada
-
-![Tempo Absoluto](../../results/parallel_region/charts/grafico4_tempo_absoluto.png)
-
-**O que mostra:** Evolução do tempo da versão arrumada com o número de threads.
-
-**Linhas pontilhadas:** Tempo sequencial para cada N
-
-**Observações:**
-- Tempo diminui significativamente com mais threads
-- Escalabilidade boa até 8 threads, depois estabiliza
-- Para N=1M: de ~13ms (seq) para ~2.9ms (16 threads)
-
----
-
-## Tabela de Resultados
-
-> Média de **5 execuções** por configuração
-
-| Versão | N | Threads | Tempo Médio (ms) | Speedup |
-|--------|---|---------|------------------|---------|
-| seq | 100.000 | 1 | 1.29 | 1.00x |
-| arrumada | 100.000 | 4 | 0.42 | **3.07x** |
-| ingenua | 100.000 | 4 | 0.52 | 2.49x |
-| | | | | |
-| seq | 500.000 | 1 | 6.46 | 1.00x |
-| arrumada | 500.000 | 8 | 1.51 | **4.27x** |
-| ingenua | 500.000 | 8 | 1.84 | 3.51x |
-| | | | | |
-| seq | 1.000.000 | 1 | 13.58 | 1.00x |
-| arrumada | 1.000.000 | 16 | 2.88 | **4.72x** |
-| ingenua | 1.000.000 | 16 | 3.50 | 3.88x |
-
----
-
-## Conclusões
-
-### Overhead de Fork/Join
-
-1. **Overhead mensurável**: Criar threads duas vezes é mais lento que uma vez
-2. **Diferença de ~10-20%**: Em configurações com muitas threads
-3. **Impacto maior em threads altos**: Mais threads = mais custo de fork/join
-
-### Speedup Obtido
-
-| Configuração | Speedup Arrumada | Speedup Ingênua | Vantagem |
-|--------------|------------------|-----------------|----------|
-| N=100k, 4T | 3.07x | 2.49x | +23% |
-| N=500k, 8T | 4.27x | 3.51x | +22% |
-| N=1M, 16T | 4.72x | 3.88x | **+22%** |
+Os gráficos são salvos em `../../results/parallel_region/charts/`:
+- `grafico1_comparacao_versoes.png` - Comparação ingênua vs arrumada
+- `grafico2_overhead_relativo.png` - Overhead da versão ingênua
+- `grafico3_speedup_sequencial.png` - Speedup sobre sequencial
+- `grafico4_tempo_absoluto.png` - Tempo absoluto vs threads
 
 ### Boas Práticas
 
@@ -250,28 +173,3 @@ make clean
     for (...) { ... }
 }
 ```
-
-### Lições Aprendidas
-
-1. **Organização importa**: ~20% de ganho apenas reorganizando código
-2. **Fork/join tem custo**: Criar threads não é gratuito
-3. **Reutilize threads**: Uma região parallel com múltiplos for é mais eficiente
-4. **Paralelismo funciona**: Speedup de ~4-5x com 8-16 threads para kernel compute-bound
-
----
-
-## Ambiente de Execução
-
-Os resultados apresentados foram obtidos no seguinte ambiente:
-
-| Componente | Especificação |
-|------------|---------------|
-| **Sistema Operacional** | macOS (Darwin 25.1.0) |
-| **Arquitetura** | ARM64 (Apple Silicon) |
-| **Processador** | Apple M3 Pro |
-| **Cores Físicos** | 11 |
-| **Cores Lógicos** | 11 |
-| **Memória RAM** | 18 GB |
-| **Compilador** | Apple Clang 16.0.0 |
-| **OpenMP** | libomp 21.1.7 (via Homebrew) |
-| **Flags de Compilação** | `-O3 -march=native -fopenmp` |

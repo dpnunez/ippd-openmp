@@ -108,7 +108,7 @@ Para cada combinação de parâmetros:
 
 ```
 src/saxpy/
-├── sequencial/
+├── seq/
 │   └── saxpy.c          # Versão V1
 ├── omp/
 │   └── saxpy.c          # Versões V2 e V3
@@ -148,161 +148,24 @@ make clean
 
 ---
 
-## Análise dos Resultados
+## Resultados
 
-### Gráfico 1: Comparação de Tempo - Todas as Versões
+Os resultados detalhados desta tarefa estão disponíveis em:
 
-![Tempo por Versão](../../results/saxpy/charts/grafico1_tempo_versao.png)
+- **Análise completa**: [`../../RESULTADOS.md`](../../RESULTADOS.md#tarefa-c--saxpy-vetorização-com-simd)
+- **Reprodutibilidade**: [`../../REPRODUCIBILIDADE.md`](../../REPRODUCIBILIDADE.md)
 
-**O que mostra:** Tempo de execução (em milissegundos) para cada versão e configuração de threads, separado por tamanho de vetor (N).
+### Resumo
 
-**Legenda:**
-- **Seq**: Versão sequencial (baseline)
-- **SIMD**: Versão com vetorização apenas (1 thread)
-- **P.SIMD xT**: Parallel SIMD com x threads (1, 2, 4, 8, 16)
+| Versão | Melhor Speedup | Observação |
+|--------|----------------|------------|
+| SIMD | ~1.4x | Sem overhead de threads |
+| Parallel SIMD | ~1.9x (4 threads) | Limitado por memória |
 
-**Barras de erro:** ±1 desvio padrão (baseado em 5 execuções)
+### Gráficos Gerados
 
-**Observações:**
-- Para N=100k, a versão SIMD é a mais rápida (0.013ms vs 0.018ms do sequencial)
-- O Parallel SIMD com poucas threads (1-4) adiciona overhead sem ganho para vetores pequenos
-- Para N=500k e N=1M, o Parallel SIMD com 4 threads começa a mostrar vantagem
-- Com 8+ threads, o desempenho degrada devido à contenção de memória
-
-### Gráfico 2: Speedup de Todas as Versões sobre Sequencial
-
-![Speedup](../../results/saxpy/charts/grafico2_speedup_simd.png)
-
-**O que mostra:** Speedup de cada versão em relação ao baseline sequencial, para cada tamanho de vetor.
-
-**Como interpretar:**
-- **Speedup = 1.0x**: mesmo desempenho do sequencial (linha tracejada)
-- **Speedup > 1.0x**: ganho de desempenho (mais rápido que sequencial)
-- **Speedup < 1.0x**: perda de desempenho (overhead supera ganhos)
-
-**Legenda:**
-- **SIMD (1 thread)**: barra verde
-- **P.SIMD (x threads)**: barras em tons de amarelo a vermelho
-
-**Observações:**
-- **SIMD** oferece speedup consistente de 1.0x a 1.4x
-- **Parallel SIMD com 4 threads** atinge o melhor speedup para N=500k (1.87x)
-- Para N=100k, **nenhuma** configuração de Parallel SIMD supera o sequencial
-- Com 16 threads, o speedup é sempre < 1.0x (overhead domina)
-
-### Gráfico 3: Speedup do Parallel SIMD vs Threads
-
-![Escalabilidade](../../results/saxpy/charts/grafico3_escalabilidade.png)
-
-**O que mostra:** Como o speedup do Parallel SIMD (em relação ao sequencial) varia conforme aumentamos o número de threads.
-
-**Linha de referência:** Speedup = 1.0x (desempenho do sequencial)
-
-**Barras de erro:** ±1 desvio padrão propagado
-
-**Observações:**
-- Para **N=100k** (azul): nunca supera o baseline - overhead de threads domina
-- Para **N=500k** (verde): pico de speedup com 2-4 threads (~1.9x)
-- Para **N=1M** (vermelho): melhor com 4 threads (~1.5x), depois degrada
-- A escalabilidade está muito abaixo do ideal devido à natureza memory-bound
-
-**Por que não escala linearmente?**
-SAXPY é limitado pela largura de banda da memória, não pelo processamento. Mais threads competem pelo mesmo barramento de memória, causando contenção.
-
-### Gráfico 4: Tempo Absoluto vs Threads
-
-![Tempo vs Threads](../../results/saxpy/charts/grafico4_tempo_threads.png)
-
-**O que mostra:** Tempo absoluto de execução do Parallel SIMD para diferentes números de threads.
-
-**Linhas pontilhadas:** Tempo da versão sequencial para cada N (referência)
-
-**Barras de erro:** ±1 desvio padrão
-
-**Observações:**
-- Existe um "ponto ótimo" de threads (geralmente 2-4)
-- Para N=100k, o tempo **aumenta** com mais threads
-- Para N=500k e N=1M, há uma região de ganho (2-4 threads)
-- Além de 4 threads, o tempo volta a aumentar
-
----
-
-## Tabela Completa de Resultados
-
-> Média de **5 execuções** por configuração
-
-| Versão | N | Threads | Tempo Médio (ms) | Desvio Padrão (ms) | Speedup |
-|--------|---|---------|------------------|-------------------|---------|
-| seq | 100.000 | 1 | 0.0182 | 0.0072 | 1.00x |
-| simd | 100.000 | 1 | 0.0134 | 0.0005 | **1.36x** |
-| parallel_simd | 100.000 | 1 | 0.0448 | 0.0767 | 0.41x |
-| parallel_simd | 100.000 | 2 | 0.0250 | 0.0341 | 0.73x |
-| parallel_simd | 100.000 | 4 | 0.0212 | 0.0267 | 0.86x |
-| parallel_simd | 100.000 | 8 | 0.0696 | 0.0614 | 0.26x |
-| parallel_simd | 100.000 | 16 | 0.1108 | 0.1037 | 0.16x |
-| | | | | | |
-| seq | 500.000 | 1 | 0.0932 | 0.0073 | 1.00x |
-| simd | 500.000 | 1 | 0.0866 | 0.0346 | 1.08x |
-| parallel_simd | 500.000 | 1 | 0.1260 | 0.0565 | 0.74x |
-| parallel_simd | 500.000 | 2 | 0.0568 | 0.0478 | 1.64x |
-| parallel_simd | 500.000 | 4 | 0.0498 | 0.0472 | **1.87x** |
-| parallel_simd | 500.000 | 8 | 0.0934 | 0.1082 | 1.00x |
-| parallel_simd | 500.000 | 16 | 0.1368 | 0.1361 | 0.68x |
-| | | | | | |
-| seq | 1.000.000 | 1 | 0.1278 | 0.0197 | 1.00x |
-| simd | 1.000.000 | 1 | 0.1278 | 0.0546 | 1.00x |
-| parallel_simd | 1.000.000 | 1 | 0.1284 | 0.0549 | 1.00x |
-| parallel_simd | 1.000.000 | 2 | 0.1454 | 0.1621 | 0.88x |
-| parallel_simd | 1.000.000 | 4 | 0.0856 | 0.1012 | **1.49x** |
-| parallel_simd | 1.000.000 | 8 | 0.0962 | 0.0744 | 1.33x |
-| parallel_simd | 1.000.000 | 16 | 0.1314 | 0.1031 | 0.97x |
-
----
-
-## Conclusões
-
-### Ganhos da Vetorização (SIMD)
-
-1. **Speedup modesto mas consistente**: ~1.0x a 1.4x dependendo do tamanho
-2. **Sem overhead**: SIMD não tem custo de criação de threads
-3. **Melhor para vetores pequenos**: para N=100k, SIMD é a melhor opção
-
-### Limitações do Paralelismo de Threads
-
-1. **Overhead significativo**: criar/sincronizar threads custa tempo
-2. **Contenção de memória**: threads competem pelo barramento
-3. **Ponto ótimo**: existe um número ideal de threads (2-4 para SAXPY)
-4. **Mais threads ≠ mais velocidade**: para operações memory-bound
-
-### Recomendações de Uso
-
-| Tamanho do Vetor | Versão Recomendada | Speedup Esperado |
-|------------------|-------------------|------------------|
-| N < 100k | SIMD | ~1.3x |
-| 100k ≤ N < 500k | Parallel SIMD (2-4 threads) | ~1.5x-1.9x |
-| N ≥ 500k | Parallel SIMD (4 threads) | ~1.5x |
-
-### Lições Aprendidas
-
-1. **Medir antes de otimizar**: a intuição sobre paralelismo pode ser enganosa
-2. **SIMD é "gratuito"**: vetorização sem threads deve sempre ser considerada
-3. **Conhecer o gargalo**: SAXPY é memory-bound, não compute-bound
-4. **Overhead importa**: para tarefas rápidas, o custo de paralelismo domina
-
----
-
-## Ambiente de Execução
-
-Os resultados apresentados foram obtidos no seguinte ambiente:
-
-| Componente | Especificação |
-|------------|---------------|
-| **Sistema Operacional** | macOS (Darwin 25.1.0) |
-| **Arquitetura** | ARM64 (Apple Silicon) |
-| **Processador** | Apple M3 Pro |
-| **Cores Físicos** | 11 |
-| **Cores Lógicos** | 11 |
-| **Memória RAM** | 18 GB |
-| **Compilador** | Apple Clang 16.0.0 |
-| **OpenMP** | libomp 21.1.7 (via Homebrew) |
-| **Flags de Compilação** | `-O3 -march=native -fopenmp` |
+Os gráficos são salvos em `../../results/saxpy/charts/`:
+- `grafico1_tempo_versao.png` - Comparação de tempo entre versões
+- `grafico2_speedup_simd.png` - Speedup sobre sequencial
+- `grafico3_escalabilidade.png` - Speedup vs threads
+- `grafico4_tempo_threads.png` - Tempo absoluto vs threads

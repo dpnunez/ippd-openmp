@@ -27,7 +27,7 @@ else
 endif
 
 # Diretórios
-SRC_SEQ = sequencial
+SRC_SEQ = seq
 SRC_OMP = omp
 BIN = bin
 RESULTS = ../../results/saxpy
@@ -90,8 +90,8 @@ help:
 	@echo "Compilador: $(CC)"
 	@echo ""
 	@echo "Estrutura:"
-	@echo "  sequencial/  - Código sequencial (V1)"
-	@echo "  omp/         - Código OpenMP (V2, V3)"
+	@echo "  seq/  - Código sequencial (V1)"
+	@echo "  omp/  - Código OpenMP (V2, V3)"
 	@echo ""
 	@echo "Alvos disponíveis:"
 	@echo "  all   - Compila todas as versões"

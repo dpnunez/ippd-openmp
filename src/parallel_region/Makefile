@@ -24,7 +24,7 @@ else
 endif
 
 # Diretórios
-SRC_SEQ = sequencial
+SRC_SEQ = seq
 SRC_OMP = omp
 BIN = bin
 RESULTS = ../../results/parallel_region
@@ -79,8 +79,8 @@ help:
 	@echo "Compilador: $(CC)"
 	@echo ""
 	@echo "Estrutura:"
-	@echo "  sequencial/  - Código sequencial (baseline)"
-	@echo "  omp/         - Código OpenMP (ingênua e arrumada)"
+	@echo "  seq/  - Código sequencial (baseline)"
+	@echo "  omp/  - Código OpenMP (ingênua e arrumada)"
 	@echo ""
 	@echo "Alvos disponíveis:"
 	@echo "  all   - Compila todas as versões"
