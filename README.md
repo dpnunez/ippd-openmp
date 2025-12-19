@@ -56,6 +56,7 @@ Comparação de overhead entre duas abordagens:
 ```
 openmp-trabalho/
 ├── README.md                    # Este arquivo
+├── run_all.sh                   # Script para executar tudo
 ├── docs/
 │   └── descricao.md             # Enunciado da atividade
 │
@@ -96,7 +97,20 @@ openmp-trabalho/
 - **macOS**: `brew install libomp`
 - **Python 3** com matplotlib: `pip install matplotlib`
 
-### Executar uma tarefa
+### Executar tudo de uma vez
+
+```bash
+# Compila e executa todos os exercícios
+./run_all.sh
+
+# Com limpeza prévia
+./run_all.sh --clean
+
+# Sem gerar gráficos (mais rápido)
+./run_all.sh --no-plot
+```
+
+### Executar tarefa individual
 
 ```bash
 # Tarefa C - SAXPY
